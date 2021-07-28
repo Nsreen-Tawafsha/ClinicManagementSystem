@@ -23,14 +23,16 @@ namespace ClinicManagementSystem.Controllers
             _context = context;
         }
 
-        // GET: Doctors
+        // GET: Doctors//
         public async Task<IActionResult> Index(string sortField, string currentSortField, string currentSortOrder, string SearchString, string currentFilter, int? pageNo)
         {
-             List<Doctor> doctors = this._context.Doctors.Include(d => d.Specialization).ToList();
+            int pageSize = 8;
+
+            List<Doctor> doctors = this._context.Doctors.Include(d => d.Specialization).ToList();
             if (SearchString != null)
             {
                 pageNo = 1;
-            }
+            }      
             else
             {
                 SearchString = currentFilter;
@@ -41,10 +43,10 @@ namespace ClinicManagementSystem.Controllers
             if (!String.IsNullOrEmpty(SearchString))
             {
                 doctors = doctors.Where(s => s.DoctorName.Contains(SearchString)).ToList();
-                return View(this.SortData(doctors, sortField, currentSortField, currentSortOrder));
+                doctors = this.SortData(doctors, sortField, currentSortField, currentSortOrder);
+                return View(PagingList<Doctor>.CreateAsync(doctors.AsQueryable<Doctor>(), pageNo ?? 1, pageSize));
             }
             doctors = this.SortData(doctors, sortField, currentSortField, currentSortOrder);
-            int pageSize = 8;
             return View(PagingList<Doctor>.CreateAsync(doctors.AsQueryable<Doctor>(), pageNo ?? 1, pageSize));
         }
 

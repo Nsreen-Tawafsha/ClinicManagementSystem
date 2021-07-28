@@ -28,6 +28,8 @@ namespace ClinicManagementSystem.Controllers
         public async Task <IActionResult> Index(string sortField, string currentSortField, string currentSortOrder, string SearchString, string currentFilter, int? pageNo)
 
         {
+            int pageSize = 8;
+
             List<Patient> patients = this._context.Patients.ToList();
             if (SearchString != null)
             {
@@ -43,10 +45,10 @@ namespace ClinicManagementSystem.Controllers
             if (!String.IsNullOrEmpty(SearchString))
             {
                 patients = patients.Where(s => s.PatientName.Contains(SearchString)).ToList();
-                return View(this.SortData(patients, sortField, currentSortField, currentSortOrder));
+                patients = this.SortData(patients, sortField, currentSortField, currentSortOrder);
+                return View(PagingList<Patient>.CreateAsync(patients.AsQueryable<Patient>(), pageNo ?? 1, pageSize));
             }
             patients = this.SortData(patients, sortField, currentSortField, currentSortOrder);
-            int pageSize = 8;
             return View(PagingList<Patient>.CreateAsync(patients.AsQueryable<Patient>(), pageNo ?? 1, pageSize));
         }
 
